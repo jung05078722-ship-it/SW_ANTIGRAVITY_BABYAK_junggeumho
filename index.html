@@ -1,0 +1,2656 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>밥약 (Babyak) - 우리 학교 밥친구 매칭</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* ==========================================================================
+       Design System & Variables
+       ========================================================================== */
+    :root {
+      --primary-color: #FF6B4A;
+      --primary-hover: #E85A3A;
+      --primary-light: #FFEDE9;
+      --primary-gradient: linear-gradient(135deg, #FF8E53 0%, #FF5E62 100%);
+      --secondary-color: #FFB347;
+      
+      --bg-color: #F9FAFB;
+      --card-bg: #FFFFFF;
+      --text-main: #1F2937;
+      --text-muted: #6B7280;
+      --text-light: #9CA3AF;
+      --border-color: #E5E7EB;
+      
+      --success: #10B981;
+      --success-light: #D1FAE5;
+      --danger: #EF4444;
+      --danger-light: #FEE2E2;
+      
+      --font-main: 'Noto Sans KR', 'Inter', sans-serif;
+      --font-logo: 'Outfit', sans-serif;
+      
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 10px 15px -3px rgba(255, 107, 74, 0.15), 0 4px 6px -2px rgba(255, 107, 74, 0.05);
+      
+      --transition-fast: 0.2s ease;
+      --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: var(--font-main);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #121214;
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 4px;
+    }
+
+    /* Desktop Wrapper & Phone Simulator */
+    .desktop-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100vh;
+      background: radial-gradient(circle at 10% 20%, rgb(43, 44, 49) 0%, rgb(18, 18, 20) 90.1%);
+    }
+
+    .phone-container {
+      width: 100%;
+      max-width: 430px;
+      height: 100%;
+      max-height: 900px;
+      background-color: var(--bg-color);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      border-radius: 40px;
+      border: 10px solid #2B2C31;
+    }
+
+    @media (max-width: 480px) {
+      .phone-container {
+        max-width: 100%;
+        max-height: 100%;
+        border-radius: 0;
+        border: none;
+      }
+      .phone-status-bar {
+        display: none !important;
+      }
+    }
+
+    .phone-status-bar {
+      height: 38px;
+      background-color: var(--bg-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 28px 0 24px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      color: var(--text-main);
+      z-index: 100;
+      user-select: none;
+    }
+
+    .phone-status-bar .status-icons {
+      display: flex;
+      gap: 6px;
+      font-size: 11px;
+    }
+
+    .app-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 70px;
+    }
+
+    .app-content.no-nav {
+      padding-bottom: 0 !important;
+    }
+
+    /* Bottom Navigation Bar */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 68px;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid rgba(229, 231, 235, 0.7);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      align-items: center;
+      justify-items: center;
+      z-index: 99;
+      padding-bottom: var(--safe-area-bottom);
+    }
+
+    .bottom-nav.hidden {
+      display: none !important;
+    }
+
+    .nav-item {
+      border: none;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      font-size: 10px;
+      font-weight: 500;
+      transition: var(--transition-fast);
+    }
+
+    .nav-item i {
+      font-size: 20px;
+      transition: transform var(--transition-fast);
+    }
+
+    .nav-item:hover i, .nav-item.active i {
+      transform: translateY(-2px);
+    }
+
+    .nav-item.active {
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+
+    .nav-icon-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .badge {
+      position: absolute;
+      top: -4px;
+      right: -8px;
+      background-color: var(--danger);
+      color: white;
+      font-size: 9px;
+      font-weight: 700;
+      border-radius: 10px;
+      padding: 1px 5px;
+      min-width: 14px;
+      text-align: center;
+      border: 1.5px solid white;
+      animation: popIn 0.3s ease;
+    }
+
+    .badge.hidden {
+      display: none !important;
+    }
+
+    /* Core UI Elements */
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-primary {
+      background: var(--primary-gradient);
+      color: white;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+      opacity: 0.95;
+    }
+
+    .btn-primary:disabled {
+      background: var(--text-light);
+      box-shadow: none;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+
+    .btn-secondary {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+      width: 100%;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 14px;
+      color: var(--text-main);
+      background-color: white;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(255, 107, 74, 0.15);
+    }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+    .animate-fade-in { animation: fadeIn 0.3s ease forwards; }
+    .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-pop-in { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+    .hidden { display: none !important; }
+
+    /* Splash Screen */
+    .splash-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: var(--primary-gradient);
+      color: white;
+      padding: 24px;
+      height: 100%;
+    }
+
+    .splash-logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 80px;
+    }
+
+    .splash-logo-circle {
+      width: 90px;
+      height: 90px;
+      background: white;
+      border-radius: 26px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    .splash-logo-circle i {
+      font-size: 42px;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .splash-title {
+      font-family: var(--font-logo);
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .splash-subtitle {
+      font-size: 15px;
+      font-weight: 400;
+      opacity: 0.9;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .splash-footer {
+      font-size: 11px;
+      opacity: 0.6;
+      position: absolute;
+      bottom: 30px;
+    }
+
+    /* Auth Screen */
+    .auth-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 30px 24px;
+      background-color: var(--bg-color);
+      min-height: 100%;
+    }
+
+    .auth-header {
+      margin-bottom: 28px;
+    }
+
+    .auth-back-btn {
+      border: none;
+      background: none;
+      font-size: 20px;
+      color: var(--text-main);
+      cursor: pointer;
+      margin-bottom: 16px;
+      padding: 4px;
+    }
+
+    .auth-title {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .auth-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .code-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .code-input {
+      height: 56px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      text-align: center;
+      background-color: white;
+    }
+
+    .code-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(255, 107, 74, 0.15);
+    }
+
+    .tags-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .tags-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .tag-checkbox {
+      display: none;
+    }
+
+    .tag-label {
+      padding: 8px 14px;
+      background-color: white;
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .tag-checkbox:checked + .tag-label {
+      background-color: var(--primary-light);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    /* Feed Screen */
+    .header-bar {
+      position: sticky;
+      top: 0;
+      height: 56px;
+      background-color: white;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      z-index: 90;
+    }
+
+    .header-logo {
+      font-family: var(--font-logo);
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--primary-color);
+      letter-spacing: 0.5px;
+    }
+
+    .header-logo i { margin-right: 4px; }
+
+    .header-action {
+      border: none;
+      background: none;
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .filter-bar {
+      background-color: white;
+      padding: 10px 16px 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: sticky;
+      top: 56px;
+      z-index: 89;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+
+    .filter-row::-webkit-scrollbar { display: none; }
+
+    .filter-chip {
+      padding: 7px 12px;
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .filter-chip.active {
+      background-color: var(--text-main);
+      border-color: var(--text-main);
+      color: white;
+    }
+
+    .feed-container {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(0, 0, 0, 0.02);
+      cursor: pointer;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card:active {
+      transform: scale(0.99);
+      box-shadow: none;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.3;
+    }
+
+    .card-status {
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .card-status.recruiting {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+
+    .card-status.closed {
+      background-color: var(--border-color);
+      color: var(--text-muted);
+    }
+
+    .card-details {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .card-detail-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    .card-detail-item i {
+      color: var(--primary-color);
+      width: 14px;
+      text-align: center;
+    }
+
+    .card-footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 700;
+      font-size: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .user-nickname { font-size: 12px; font-weight: 600; }
+    .user-manner {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    .user-manner i { color: var(--secondary-color); }
+    .card-capacity { font-size: 12px; font-weight: 700; color: var(--primary-color); }
+
+    .fab {
+      position: absolute;
+      bottom: 84px;
+      right: 20px;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      box-shadow: 0 6px 16px rgba(255, 107, 74, 0.35);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 80;
+    }
+
+    .fab:active { transform: scale(0.92); }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 80px 20px;
+    }
+    .empty-state i { font-size: 40px; color: var(--text-light); }
+    .empty-state p { font-size: 14px; }
+
+    /* Write Post Screen */
+    .write-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-color);
+    }
+
+    .write-header {
+      position: sticky;
+      top: 0;
+      height: 56px;
+      background-color: white;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 90;
+    }
+
+    .write-back-btn {
+      border: none;
+      background: none;
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .write-title { font-size: 16px; font-weight: 700; }
+    .write-save-btn {
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary-color);
+      cursor: pointer;
+    }
+
+    .write-form {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .segmented-control {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      background-color: var(--border-color);
+      padding: 3px;
+      border-radius: 10px;
+      gap: 2px;
+    }
+
+    .segmented-btn {
+      border: none;
+      background: none;
+      padding: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .segmented-btn.active {
+      background-color: white;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .option-btn {
+      background-color: white;
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .option-btn.active {
+      border-color: var(--primary-color);
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    /* Detail Screen */
+    .detail-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-color);
+    }
+
+    .detail-header {
+      height: 56px;
+      background-color: white;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+
+    .detail-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+    }
+
+    .detail-card {
+      background-color: white;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .detail-user-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 14px;
+    }
+
+    .detail-user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .detail-user-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .detail-user-meta { font-size: 11px; color: var(--text-muted); }
+    .detail-title { font-size: 18px; font-weight: 700; line-height: 1.3; }
+
+    .detail-info-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .detail-info-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13.5px;
+    }
+
+    .detail-info-item i {
+      color: var(--primary-color);
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .detail-info-label { font-weight: 600; color: var(--text-muted); width: 60px; }
+    .detail-info-value { color: var(--text-main); font-weight: 500; }
+
+    .detail-participants-section {
+      background-color: white;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: var(--text-main);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .participants-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .participant-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .participant-avatar-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .participant-badge {
+      font-size: 10px;
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .detail-footer-btn-container {
+      margin-top: auto;
+      padding: 16px 20px;
+      background-color: white;
+      border-top: 1px solid var(--border-color);
+      position: sticky;
+      bottom: 0;
+      z-index: 80;
+    }
+
+    /* Notifications Screen */
+    .noti-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-color);
+    }
+
+    .noti-list {
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 12px;
+    }
+
+    .noti-card {
+      background-color: white;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .noti-header {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .noti-avatar { flex-shrink: 0; }
+    .noti-body { flex: 1; }
+    .noti-text { font-size: 13.5px; line-height: 1.4; color: var(--text-main); }
+    .noti-text strong { font-weight: 700; }
+    .noti-target-post {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      background-color: var(--bg-color);
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-block;
+    }
+
+    .noti-actions { display: flex; gap: 8px; margin-left: 38px; }
+    .noti-btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+    }
+
+    .noti-btn-accept { background-color: var(--primary-color); color: white; }
+    .noti-btn-reject { background-color: var(--border-color); color: var(--text-muted); }
+    .noti-time { font-size: 10px; color: var(--text-light); margin-top: 2px; }
+
+    /* Chats List Screen */
+    .chat-list-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-color);
+    }
+
+    .chat-list { display: flex; flex-direction: column; background-color: white; }
+    .chat-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+    }
+
+    .chat-list-item:active { background-color: var(--bg-color); }
+    
+    .chat-item-avatar-group {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 18px;
+      font-weight: 700;
+      border: 1px solid rgba(255, 107, 74, 0.2);
+    }
+
+    .chat-item-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .chat-item-row { display: flex; justify-content: space-between; align-items: baseline; }
+    .chat-item-name { font-size: 14.5px; font-weight: 700; color: var(--text-main); }
+    .chat-item-time { font-size: 10px; color: var(--text-light); }
+    .chat-item-last {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 250px;
+    }
+    .chat-item-count { font-size: 10.5px; color: var(--primary-color); font-weight: 600; }
+
+    /* Chat Room Screen */
+    .chat-room-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background-color: #F3F4F6;
+      position: relative;
+    }
+
+    .chat-room-header {
+      height: 56px;
+      background-color: white;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 90;
+    }
+
+    .chat-back-btn {
+      border: none;
+      background: none;
+      font-size: 18px;
+      color: var(--text-main);
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .chat-room-title-container { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .chat-room-title { font-size: 15px; font-weight: 700; }
+    .chat-room-member-count { font-size: 10px; color: var(--text-muted); }
+
+    .chat-room-info-banner {
+      background-color: var(--primary-light);
+      border-bottom: 1px solid rgba(255, 107, 74, 0.1);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    .chat-banner-details { display: flex; flex-direction: column; gap: 2px; }
+    .chat-banner-details span { display: flex; align-items: center; gap: 6px; }
+    .chat-banner-details i { color: var(--primary-color); width: 12px; }
+
+    .chat-end-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(255, 107, 74, 0.2);
+    }
+
+    .chat-messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .chat-sys-msg {
+      align-self: center;
+      background-color: rgba(0, 0, 0, 0.05);
+      color: var(--text-muted);
+      font-size: 10.5px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      margin: 4px 0;
+      text-align: center;
+      max-width: 80%;
+    }
+
+    .chat-msg-bubble-group { display: flex; gap: 8px; max-width: 75%; }
+    .chat-msg-bubble-group.me { align-self: flex-end; flex-direction: row-reverse; }
+    .chat-msg-bubble-group.other { align-self: flex-start; }
+
+    .chat-bubble-content-wrapper { display: flex; flex-direction: column; gap: 4px; }
+    .chat-bubble-sender { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+    .chat-bubble-row { display: flex; align-items: flex-end; gap: 4px; }
+    .chat-msg-bubble-group.me .chat-bubble-row { flex-direction: row-reverse; }
+
+    .chat-bubble {
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 13.5px;
+      line-height: 1.4;
+      word-break: break-all;
+    }
+
+    .chat-msg-bubble-group.me .chat-bubble {
+      background-color: var(--primary-color);
+      color: white;
+      border-top-right-radius: 4px;
+      box-shadow: 0 1px 2px rgba(255, 107, 74, 0.2);
+    }
+
+    .chat-msg-bubble-group.other .chat-bubble {
+      background-color: white;
+      color: var(--text-main);
+      border-top-left-radius: 4px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chat-bubble-time { font-size: 9px; color: var(--text-light); white-space: nowrap; }
+
+    .chat-input-bar {
+      background-color: white;
+      padding: 10px 16px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: calc(10px + var(--safe-area-bottom));
+    }
+
+    .chat-input {
+      flex: 1;
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 13.5px;
+      outline: none;
+      transition: border-color var(--transition-fast);
+    }
+
+    .chat-input:focus { border-color: var(--primary-color); }
+    .chat-send-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 14px;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(255, 107, 74, 0.25);
+      transition: transform var(--transition-fast);
+    }
+
+    .chat-send-btn:active { transform: scale(0.9); }
+
+    /* My Page Screen */
+    .mypage-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-color);
+    }
+
+    .mypage-profile-card {
+      background-color: white;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .mypage-avatar {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      font-size: 32px;
+      font-weight: 700;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 2px solid var(--primary-color);
+    }
+
+    .mypage-nickname { font-size: 18px; font-weight: 700; color: var(--text-main); }
+    .mypage-school-info {
+      font-size: 12px;
+      color: var(--text-muted);
+      background-color: var(--bg-color);
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+
+    .manner-section {
+      width: 100%;
+      max-width: 320px;
+      background-color: var(--bg-color);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-top: 8px;
+    }
+
+    .manner-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .manner-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .manner-title i { color: var(--secondary-color); }
+    .manner-score { font-size: 13px; font-weight: 800; color: var(--primary-color); }
+
+    .manner-bar-bg {
+      height: 6px;
+      background-color: var(--border-color);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .manner-bar-fill {
+      height: 100%;
+      background: var(--primary-gradient);
+      border-radius: 3px;
+      transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .tabs-header {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      background-color: white;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab-btn {
+      border: none;
+      background: none;
+      padding: 14px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      transition: color var(--transition-fast);
+    }
+
+    .tab-btn.active { color: var(--primary-color); font-weight: 700; }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 30%;
+      width: 40%;
+      height: 3px;
+      background-color: var(--primary-color);
+      border-radius: 3px 3px 0 0;
+    }
+
+    .demo-switch-panel {
+      margin: 16px;
+      padding: 14px;
+      background-color: white;
+      border-radius: 12px;
+      border: 1px dashed var(--primary-color);
+    }
+
+    .demo-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .demo-btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .demo-switch-btn {
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-color);
+      padding: 6px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .demo-switch-btn.active {
+      background-color: var(--primary-light);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    /* Modals & Toasts */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 200;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      animation: fadeIn 0.25s ease forwards;
+    }
+
+    .modal-content {
+      background-color: white;
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .modal-title { font-size: 17px; font-weight: 700; text-align: center; }
+    .modal-desc { font-size: 13px; color: var(--text-muted); text-align: center; line-height: 1.4; }
+
+    .rating-stars { display: flex; justify-content: center; gap: 12px; margin: 10px 0; }
+    .star-btn {
+      border: none;
+      background: none;
+      font-size: 32px;
+      color: var(--border-color);
+      cursor: pointer;
+      transition: transform var(--transition-fast), color var(--transition-fast);
+    }
+
+    .star-btn:active { transform: scale(0.9); }
+    .star-btn.selected { color: var(--secondary-color); }
+
+    .toast-container {
+      position: fixed;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 90%;
+      max-width: 320px;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: rgba(31, 41, 55, 0.9);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1), fadeIn 0.3s ease;
+      pointer-events: auto;
+    }
+
+    .toast i { font-size: 14px; }
+    .toast.success i { color: var(--success); }
+    .toast.danger i { color: #F87171; }
+    .toast.warning i { color: var(--secondary-color); }
+  </style>
+</head>
+<body>
+  <div class="desktop-wrapper">
+    <div class="phone-container">
+      <!-- Status bar -->
+      <div class="phone-status-bar">
+        <span class="status-time">09:41</span>
+        <div class="status-icons">
+          <i class="fas fa-signal"></i>
+          <i class="fas fa-wifi"></i>
+          <i class="fas fa-battery-three-quarters"></i>
+        </div>
+      </div>
+      
+      <!-- Viewport -->
+      <div id="app" class="app-content"></div>
+      
+      <!-- Bottom Nav -->
+      <nav id="bottom-nav" class="bottom-nav hidden">
+        <button class="nav-item active" data-view="feed">
+          <i class="fas fa-utensils"></i>
+          <span>밥약</span>
+        </button>
+        <button class="nav-item" data-view="chats">
+          <div class="nav-icon-wrapper">
+            <i class="fas fa-comments"></i>
+            <span class="badge hidden" id="chat-badge">0</span>
+          </div>
+          <span>채팅</span>
+        </button>
+        <button class="nav-item" data-view="notifications">
+          <div class="nav-icon-wrapper">
+            <i class="fas fa-bell"></i>
+            <span class="badge hidden" id="noti-badge">0</span>
+          </div>
+          <span>알림</span>
+        </button>
+        <button class="nav-item" data-view="mypage">
+          <i class="fas fa-user"></i>
+          <span>마이</span>
+        </button>
+      </nav>
+    </div>
+  </div>
+  
+  <div id="modal-container" class="modal-overlay hidden"></div>
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Javascript Logic -->
+  <script>
+    // ==========================================================================
+    // 1. Data Store / State Machine
+    // ==========================================================================
+    const STATE_KEY = 'BABYAK_APP_STATE';
+    
+    const MOCK_USERS = [
+      { id: 'user_minsoo', nickname: '민수킴', email: 'minsoo@univ.ac.kr', dept: '컴퓨터공학과', grade: '2학년', tags: ['한식', '가성비', '빠른식사'], mannerScore: 38.5, avatar: 'M' },
+      { id: 'user_yoonji', nickname: '윤지츄', email: 'yoonji@univ.ac.kr', dept: '경영학과', grade: '1학년', tags: ['일식', '수다왕', '디저트'], mannerScore: 36.5, avatar: 'Y' },
+      { id: 'user_jihoon', nickname: '지훈보이', email: 'jihoon@univ.ac.kr', dept: '음악학과', grade: '3학년', tags: ['양식', '마라탕', '맛집탐방'], mannerScore: 41.2, avatar: 'J' }
+    ];
+
+    const getMockPosts = () => [
+      { id: 'post_1', title: '오늘 점심 학식 같이 먹을 분!', menu: '제육볶음', dateTime: new Date().toISOString().slice(0,11) + '12:30', location: '학생식당', capacity: 3, joinedCount: 1, genderCondition: '무관', status: 'recruiting', authorId: 'user_yoonji', participantIds: ['user_yoonji'], createdAt: new Date().toISOString() },
+      { id: 'post_2', title: '신촌 마라탕 팟 구합니다 (혼밥 탈출)', menu: '마라탕', dateTime: new Date().toISOString().slice(0,11) + '18:00', location: '대학가 마라탕집', capacity: 4, joinedCount: 2, genderCondition: '동성만', status: 'recruiting', authorId: 'user_jihoon', participantIds: ['user_jihoon', 'user_minsoo'], createdAt: new Date().toISOString() }
+    ];
+
+    const getMockChats = () => [
+      {
+        id: 'post_2',
+        postId: 'post_2',
+        participantIds: ['user_jihoon', 'user_minsoo'],
+        ended: false,
+        messages: [
+          { id: 'msg_1', senderId: 'system', senderName: '시스템', content: '밥약 매칭이 성사되어 채팅방이 개설되었습니다!', timestamp: '2026-06-19T20:00:00Z', isSystem: true },
+          { id: 'msg_2', senderId: 'user_jihoon', senderName: '지훈보이', content: '안녕하세요! 마라탕 매운 단계 몇단계 드시나요?', timestamp: '2026-06-19T20:02:00Z', isSystem: false },
+          { id: 'msg_3', senderId: 'user_minsoo', senderName: '민수킴', content: '안녕하세요~ 전 보통 2단계 먹어요 ㅎㅎ!', timestamp: '2026-06-19T20:05:00Z', isSystem: false }
+        ]
+      }
+    ];
+
+    const getMockApplications = () => [
+      { id: 'app_1', postId: 'post_1', applicantId: 'user_minsoo', status: 'pending', createdAt: new Date().toISOString() }
+    ];
+
+    let state = { users: [...MOCK_USERS], posts: [], applications: [], chats: [], currentUser: null };
+
+    function initializeState() {
+      const savedState = localStorage.getItem(STATE_KEY);
+      if (savedState) {
+        try {
+          state = JSON.parse(savedState);
+          if (!state.users || state.users.length === 0) state.users = [...MOCK_USERS];
+        } catch (e) {
+          resetState();
+        }
+      } else {
+        resetState();
+      }
+      return state;
+    }
+
+    function resetState() {
+      state.users = [...MOCK_USERS];
+      state.posts = getMockPosts();
+      state.applications = getMockApplications();
+      state.chats = getMockChats();
+      state.currentUser = state.users[0];
+      saveState();
+    }
+
+    function saveState() {
+      localStorage.setItem(STATE_KEY, JSON.stringify(state));
+    }
+
+    const db = {
+      getCurrentUser: () => state.currentUser,
+      setCurrentUser: (userId) => {
+        const u = state.users.find(x => x.id === userId);
+        if (u) { state.currentUser = u; saveState(); return u; }
+        return null;
+      },
+      registerUser: (data) => {
+        const newUser = {
+          id: 'user_' + Date.now(), nickname: data.nickname, email: data.email, dept: data.dept, grade: data.grade, tags: data.tags || [], mannerScore: 36.5, avatar: data.nickname.charAt(0).toUpperCase()
+        };
+        state.users.push(newUser);
+        state.currentUser = newUser;
+        saveState();
+        return newUser;
+      },
+      getUsers: () => state.users,
+      getUser: (id) => state.users.find(x => x.id === id),
+      getPosts: () => state.posts,
+      getPost: (id) => state.posts.find(x => x.id === id),
+      createPost: (data) => {
+        const newPost = {
+          id: 'post_' + Date.now(), title: data.title, menu: data.menu, dateTime: data.dateTime, location: data.location, capacity: parseInt(data.capacity, 10), joinedCount: 1, genderCondition: data.genderCondition, status: 'recruiting', authorId: state.currentUser.id, participantIds: [state.currentUser.id], createdAt: new Date().toISOString()
+        };
+        state.posts.unshift(newPost);
+        saveState();
+        return newPost;
+      },
+      getApplications: () => state.applications,
+      applyToPost: (postId) => {
+        const user = state.currentUser;
+        const post = db.getPost(postId);
+        if (post.authorId === user.id) return { success: false, message: '본인이 쓴 글에는 신청할 수 없습니다.' };
+        if (post.participantIds.includes(user.id)) return { success: false, message: '이미 참여 중인 밥약입니다.' };
+        
+        if (post.genderCondition === '동성만') {
+          const author = db.getUser(post.authorId);
+          const isMale = (u) => u.id === 'user_minsoo' || u.id === 'user_jihoon';
+          if (isMale(author) !== isMale(user)) return { success: false, message: '성별 조건(동성만)에 맞지 않습니다.' };
+        }
+
+        const existing = state.applications.find(a => a.postId === postId && a.applicantId === user.id);
+        if (existing) {
+          if (existing.status === 'pending') return { success: false, message: '이미 수락 대기 중인 신청입니다.' };
+          return { success: false, message: '이미 참여 신청 정보를 보냈습니다.' };
+        }
+
+        const newApp = { id: 'app_' + Date.now(), postId, applicantId: user.id, status: 'pending', createdAt: new Date().toISOString() };
+        state.applications.push(newApp);
+        saveState();
+        return { success: true, application: newApp };
+      },
+      respondToApplication: (appId, status) => {
+        const app = state.applications.find(a => a.id === appId);
+        if (!app) return { success: false };
+        app.status = status;
+        
+        if (status === 'accepted') {
+          const post = db.getPost(app.postId);
+          if (post.joinedCount >= post.capacity) {
+            app.status = 'pending';
+            return { success: false, message: '이미 정원이 마감되었습니다.' };
+          }
+          post.participantIds.push(app.applicantId);
+          post.joinedCount = post.participantIds.length;
+          if (post.joinedCount >= post.capacity) post.status = 'closed';
+
+          // Sync chat room
+          let chat = state.chats.find(c => c.postId === post.id);
+          if (!chat) {
+            chat = {
+              id: post.id, postId: post.id, participantIds: [...post.participantIds], ended: false,
+              messages: [{ id: 'msg_sys_' + Date.now(), senderId: 'system', senderName: '시스템', content: '밥약 매칭이 성사되어 채팅방이 개설되었습니다!', timestamp: new Date().toISOString(), isSystem: true }]
+            };
+            state.chats.push(chat);
+          } else {
+            chat.participantIds = [...post.participantIds];
+            chat.messages.push({ id: 'msg_sys_' + Date.now(), senderId: 'system', senderName: '시스템', content: `${db.getUser(app.applicantId).nickname}님이 합류하셨습니다.`, timestamp: new Date().toISOString(), isSystem: true });
+          }
+        }
+        saveState();
+        return { success: true };
+      },
+      getChats: () => {
+        const u = state.currentUser;
+        if (!u) return [];
+        return state.chats.filter(c => c.participantIds.includes(u.id));
+      },
+      getChat: (id) => state.chats.find(c => c.id === id),
+      sendChatMessage: (chatId, content) => {
+        const u = state.currentUser;
+        const chat = db.getChat(chatId);
+        if (!chat || chat.ended) return null;
+        const newMsg = { id: 'msg_' + Date.now(), senderId: u.id, senderName: u.nickname, content, timestamp: new Date().toISOString(), isSystem: false };
+        chat.messages.push(newMsg);
+        saveState();
+        return newMsg;
+      },
+      endChatRoom: (chatId) => {
+        const chat = db.getChat(chatId);
+        if (!chat) return false;
+        chat.ended = true;
+        chat.messages.push({ id: 'msg_sys_' + Date.now(), senderId: 'system', senderName: '시스템', content: '식사가 마쳐져 채팅방이 종료되었습니다. 멤버들의 리뷰를 남겨주세요!', timestamp: new Date().toISOString(), isSystem: true });
+        const post = db.getPost(chat.postId);
+        if (post) post.status = 'closed';
+        saveState();
+        return true;
+      },
+      rateParticipant: (postId, targetUserId, rating) => {
+        const target = db.getUser(targetUserId);
+        if (!target) return false;
+        let diff = 0;
+        if (rating === 5) diff = 0.5;
+        else if (rating === 4) diff = 0.2;
+        else if (rating === 2) diff = -0.2;
+        else if (rating === 1) diff = -0.5;
+        
+        target.mannerScore = Math.max(0, Math.min(99.0, parseFloat((target.mannerScore + diff).toFixed(1))));
+        saveState();
+        return true;
+      }
+    };
+
+    // ==========================================================================
+    // 2. Global Toast & Utility helpers
+    // ==========================================================================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      let icon = type === 'danger' ? 'fa-exclamation-circle' : (type === 'warning' ? 'fa-exclamation-triangle' : 'fa-check-circle');
+      toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translate(-50%, -20px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 2500);
+    }
+
+    function showModal(content) {
+      const overlay = document.getElementById('modal-container');
+      overlay.innerHTML = content;
+      overlay.classList.remove('hidden');
+    }
+
+    function hideModal() {
+      const overlay = document.getElementById('modal-container');
+      overlay.classList.add('hidden');
+      overlay.innerHTML = '';
+    }
+
+    function formatDateTime(dateTimeStr) {
+      const d = new Date(dateTimeStr);
+      const m = d.getMonth() + 1;
+      const date = d.getDate();
+      const h = d.getHours().toString().padStart(2, '0');
+      const min = d.getMinutes().toString().padStart(2, '0');
+      const week = ['일', '월', '화', '수', '목', '금', '토'];
+      const day = week[d.getDay()];
+      
+      const today = new Date().toDateString();
+      const tom = new Date();
+      tom.setDate(tom.getDate() + 1);
+      const tomorrow = tom.toDateString();
+      
+      let prefix = `${m}/${date}(${day})`;
+      if (d.toDateString() === today) prefix = '오늘';
+      else if (d.toDateString() === tomorrow) prefix = '내일';
+      return `${prefix} ${h}:${min}`;
+    }
+
+    function getAvatarHtml(user) {
+      return `<div class="user-avatar">${user.avatar}</div>`;
+    }
+
+    // ==========================================================================
+    // 3. UI Template Renderers
+    // ==========================================================================
+    const render = {
+      splash: (container, onComplete) => {
+        container.innerHTML = `
+          <div class="splash-screen animate-fade-in">
+            <div class="splash-logo-container animate-pop-in">
+              <div class="splash-logo-circle"><i class="fas fa-utensils"></i></div>
+              <h1 class="splash-title">밥약</h1>
+              <p class="splash-subtitle">우리 학교 학생들과 안전하게<br>식사 밥친구를 매칭해보세요</p>
+            </div>
+            <div class="splash-footer">© 2026 밥약. All rights reserved.</div>
+          </div>
+        `;
+        setTimeout(onComplete, 2200);
+      },
+
+      auth: (container, onComplete) => {
+        let step = 1, email = '', code = '';
+        const foodTags = ['한식', '일식', '중식', '양식', '분식', '마라탕', '고기', '술', '디저트', '가성비', '빠른식사', '수다왕', '조용한식사'];
+        
+        function draw() {
+          container.innerHTML = '';
+          const div = document.createElement('div');
+          div.className = 'auth-screen animate-fade-in';
+          
+          if (step === 1) {
+            div.innerHTML = `
+              <div class="auth-header">
+                <h2 class="auth-title">학교 이메일 인증</h2>
+                <p class="auth-desc">안전한 대학 매칭을 위해 학내 이메일(@*.ac.kr 또는 @*.edu)로 학생 인증을 진행합니다.</p>
+              </div>
+              <div class="form-group animate-slide-up">
+                <label>이메일 주소</label>
+                <input type="email" id="auth-email" class="input-field" placeholder="student@univ.ac.kr" value="${email}">
+              </div>
+              <div class="form-group" style="margin-top:auto;"><button id="btn-send" class="btn btn-primary">인증 코드 발송</button></div>
+            `;
+            container.appendChild(div);
+            
+            document.getElementById('btn-send').addEventListener('click', () => {
+              const val = document.getElementById('auth-email').value.trim();
+              if (!val) return showToast('이메일을 입력해주세요.', 'danger');
+              if (!val.endsWith('.ac.kr') && !val.endsWith('.edu')) {
+                showToast('대학 이메일이 아닐 경우 다른 학생들에게 인증마크가 제한될 수 있습니다.', 'warning');
+              }
+              email = val;
+              code = Math.floor(1000 + Math.random() * 9000).toString();
+              showToast(`인증번호 [${code}]가 발송되었습니다.`, 'success');
+              step = 2;
+              draw();
+            });
+          } else if (step === 2) {
+            div.innerHTML = `
+              <div class="auth-header">
+                <button id="btn-back" class="auth-back-btn"><i class="fas fa-arrow-left"></i></button>
+                <h2 class="auth-title">인증번호 입력</h2>
+                <p class="auth-desc"><strong>${email}</strong>주소로 발송된 4자리 인증번호를 입력해주세요. (기본코드: 1234)</p>
+              </div>
+              <div class="code-container animate-slide-up">
+                <input type="text" maxlength="1" class="code-input" id="c1">
+                <input type="text" maxlength="1" class="code-input" id="c2" disabled>
+                <input type="text" maxlength="1" class="code-input" id="c3" disabled>
+                <input type="text" maxlength="1" class="code-input" id="c4" disabled>
+              </div>
+              <div class="form-group" style="margin-top:auto;"><button id="btn-verify" class="btn btn-primary" disabled>인증 확인</button></div>
+            `;
+            container.appendChild(div);
+            
+            const inputs = [document.getElementById('c1'), document.getElementById('c2'), document.getElementById('c3'), document.getElementById('c4')];
+            inputs.forEach((inp, idx) => {
+              inp.addEventListener('input', () => {
+                if (inp.value && idx < 3) {
+                  inputs[idx+1].disabled = false;
+                  inputs[idx+1].focus();
+                }
+                const full = inputs.map(x=>x.value).join('');
+                document.getElementById('btn-verify').disabled = (full.length !== 4);
+              });
+              inp.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !inp.value && idx > 0) {
+                  inputs[idx-1].focus();
+                  inputs[idx].disabled = true;
+                }
+              });
+            });
+            
+            document.getElementById('btn-back').addEventListener('click', () => { step = 1; draw(); });
+            document.getElementById('btn-verify').addEventListener('click', () => {
+              const full = inputs.map(x=>x.value).join('');
+              if (full === code || full === '1234') {
+                showToast('이메일 인증이 완료되었습니다!', 'success');
+                step = 3;
+                draw();
+              } else {
+                showToast('인증코드가 다릅니다.', 'danger');
+                inputs.forEach(x=>x.value='');
+                inputs[0].focus();
+              }
+            });
+          } else if (step === 3) {
+            div.innerHTML = `
+              <div class="auth-header">
+                <h2 class="auth-title">프로필 설정</h2>
+                <p class="auth-desc">식사 친구들이 볼 프로필 정보를 설정해주세요.</p>
+              </div>
+              <div class="form-group animate-slide-up">
+                <label>닉네임</label>
+                <input type="text" id="auth-nick" class="input-field" placeholder="닉네임 입력">
+              </div>
+              <div class="form-group animate-slide-up">
+                <label>학과</label>
+                <input type="text" id="auth-dept" class="input-field" placeholder="학과 입력">
+              </div>
+              <div class="form-group animate-slide-up">
+                <label>학년</label>
+                <select id="auth-grade" class="input-field">
+                  <option value="1학년">1학년</option>
+                  <option value="2학년">2학년</option>
+                  <option value="3학년">3학년</option>
+                  <option value="4학년">4학년</option>
+                </select>
+              </div>
+              <div class="form-group animate-slide-up">
+                <label class="tags-title">식사 취향 태그 (최대 3개)</label>
+                <div class="tags-grid">
+                  ${foodTags.map(t => `<input type="checkbox" id="tag-${t}" class="tag-checkbox" value="${t}"><label for="tag-${t}" class="tag-label">${t}</label>`).join('')}
+                </div>
+              </div>
+              <div class="form-group"><button id="btn-complete" class="btn btn-primary">가입 완료</button></div>
+            `;
+            container.appendChild(div);
+            
+            div.querySelectorAll('.tag-checkbox').forEach(cb => {
+              cb.addEventListener('change', () => {
+                const checked = div.querySelectorAll('.tag-checkbox:checked');
+                if (checked.length > 3) {
+                  cb.checked = false;
+                  showToast('최대 3개까지만 가능합니다.', 'warning');
+                }
+              });
+            });
+            
+            document.getElementById('btn-complete').addEventListener('click', () => {
+              const nickname = document.getElementById('auth-nick').value.trim();
+              const dept = document.getElementById('auth-dept').value.trim();
+              const grade = document.getElementById('auth-grade').value;
+              const tags = Array.from(div.querySelectorAll('.tag-checkbox:checked')).map(x => x.value);
+              
+              if (!nickname || !dept) return showToast('닉네임과 학과를 입력해 주세요.', 'danger');
+              
+              db.registerUser({ email, nickname, dept, grade, tags });
+              showToast(`반갑습니다, ${nickname}님!`, 'success');
+              onComplete();
+            });
+          }
+        }
+        draw();
+      },
+
+      feed: (container, navigate) => {
+        let fDate = 'all', fTime = 'all', fMenu = 'all';
+        
+        function drawList() {
+          const feedBox = document.getElementById('feed-cards-container');
+          if (!feedBox) return;
+          
+          let filtered = db.getPosts().filter(p => {
+            if (fDate !== 'all') {
+              const pDate = new Date(p.dateTime).toDateString();
+              const today = new Date().toDateString();
+              const tom = new Date(); tom.setDate(tom.getDate()+1);
+              if (fDate === 'today' && pDate !== today) return false;
+              if (fDate === 'tomorrow' && pDate !== tom.toDateString()) return false;
+            }
+            if (fTime !== 'all') {
+              const hr = new Date(p.dateTime).getHours();
+              if (fTime === 'lunch' && (hr < 11 || hr > 15)) return false;
+              if (fTime === 'dinner' && (hr < 17 || hr > 21)) return false;
+            }
+            if (fMenu !== 'all') {
+              if (fMenu === '기타') {
+                if (['한식','일식','중식','양식','분식'].includes(p.menu)) return false;
+              } else if (!p.menu.includes(fMenu) && !p.title.includes(fMenu)) return false;
+            }
+            return true;
+          });
+          
+          if (filtered.length === 0) {
+            feedBox.innerHTML = `
+              <div class="empty-state animate-fade-in">
+                <i class="fas fa-hamburger"></i>
+                <p>모집 중인 밥약이 없습니다.<br>우측 하단 + 버튼을 눌러 먼저 모집해 보세요!</p>
+              </div>
+            `;
+            return;
+          }
+          
+          feedBox.innerHTML = filtered.map(p => {
+            const author = db.getUser(p.authorId);
+            return `
+              <div class="card animate-slide-up" data-id="${p.id}">
+                <div class="card-header">
+                  <h3 class="card-title">${p.title}</h3>
+                  <span class="card-status ${p.status==='closed'?'closed':'recruiting'}">${p.status==='closed'?'모집마감':'모집중'}</span>
+                </div>
+                <div class="card-details">
+                  <div class="card-detail-item"><i class="fas fa-utensils"></i><span>메뉴: <strong>${p.menu}</strong></span></div>
+                  <div class="card-detail-item"><i class="far fa-clock"></i><span>시간: ${formatDateTime(p.dateTime)}</span></div>
+                  <div class="card-detail-item"><i class="fas fa-map-marker-alt"></i><span>장소: ${p.location}</span></div>
+                </div>
+                <div class="card-footer">
+                  <div class="card-user-info">
+                    ${getAvatarHtml(author)}
+                    <div>
+                      <div class="user-nickname">${author.nickname} <span style="font-size:10px; color:var(--text-light); font-weight:normal;">${author.dept}</span></div>
+                      <div class="user-manner"><i class="fas fa-fire"></i><span>매너 ${author.mannerScore}℃</span></div>
+                    </div>
+                  </div>
+                  <div class="card-capacity">${p.joinedCount} / ${p.capacity} 명</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+          
+          feedBox.querySelectorAll('.card').forEach(c => {
+            c.addEventListener('click', () => navigate('detail', { postId: c.getAttribute('data-id') }));
+          });
+        }
+        
+        container.innerHTML = `
+          <div class="header-bar">
+            <div class="header-logo"><i class="fas fa-utensils"></i> 밥약</div>
+            <button class="header-action" id="btn-noti">
+              <i class="far fa-bell" style="font-size:20px;"></i>
+              <span class="badge hidden" id="badge-bell">0</span>
+            </button>
+          </div>
+          <div class="filter-bar">
+            <div class="filter-row" id="row-date">
+              <button class="filter-chip active" data-val="all">전체 날짜</button>
+              <button class="filter-chip" data-val="today">오늘</button>
+              <button class="filter-chip" data-val="tomorrow">내일</button>
+            </div>
+            <div class="filter-row" id="row-time">
+              <button class="filter-chip active" data-val="all">전체 시간</button>
+              <button class="filter-chip" data-val="lunch">점심 (~15시)</button>
+              <button class="filter-chip" data-val="dinner">저녁 (17시~)</button>
+            </div>
+            <div class="filter-row" id="row-menu">
+              <button class="filter-chip active" data-val="all">전체 메뉴</button>
+              <button class="filter-chip" data-val="한식">한식</button>
+              <button class="filter-chip" data-val="일식">일식</button>
+              <button class="filter-chip" data-val="중식">중식</button>
+              <button class="filter-chip" data-val="양식">양식</button>
+              <button class="filter-chip" data-val="분식">분식</button>
+            </div>
+          </div>
+          <div id="feed-cards-container" class="feed-container"></div>
+          <button class="fab" id="btn-fab-write"><i class="fas fa-plus"></i></button>
+        `;
+        
+        // Bell update
+        const bell = document.getElementById('badge-bell');
+        const myWrittenIds = db.getPosts().filter(x => x.authorId === db.getCurrentUser().id).map(x => x.id);
+        const pendingCount = db.getApplications().filter(a => myWrittenIds.includes(a.postId) && a.status === 'pending').length;
+        if (pendingCount > 0) {
+          bell.textContent = pendingCount;
+          bell.classList.remove('hidden');
+        }
+        
+        const bindFilterRow = (rowId, setter) => {
+          const row = document.getElementById(rowId);
+          row.querySelectorAll('.filter-chip').forEach(c => {
+            c.addEventListener('click', () => {
+              row.querySelector('.filter-chip.active').classList.remove('active');
+              c.classList.add('active');
+              setter(c.getAttribute('data-val'));
+              drawList();
+            });
+          });
+        };
+        
+        bindFilterRow('row-date', v => fDate = v);
+        bindFilterRow('row-time', v => fTime = v);
+        bindFilterRow('row-menu', v => fMenu = v);
+        
+        document.getElementById('btn-noti').addEventListener('click', () => navigate('notifications'));
+        document.getElementById('btn-fab-write').addEventListener('click', () => navigate('create-post'));
+        
+        drawList();
+      },
+
+      createPost: (container, navigate) => {
+        container.innerHTML = `
+          <div class="write-screen animate-fade-in">
+            <div class="write-header">
+              <button class="write-back-btn" id="btn-w-back"><i class="fas fa-times"></i></button>
+              <span class="write-title">밥약 글 작성</span>
+              <button class="write-save-btn" id="btn-w-submit">완료</button>
+            </div>
+            <div class="write-form">
+              <div class="form-group"><label>밥약 제목</label><input type="text" id="w-title" class="input-field" placeholder="예) 같이 학식 먹어요!"></div>
+              <div class="form-group"><label>식사 메뉴</label><input type="text" id="w-menu" class="input-field" placeholder="예) 제육볶음"></div>
+              <div class="form-group"><label>시간</label><input type="datetime-local" id="w-time" class="input-field"></div>
+              <div class="form-group">
+                <label>장소 구분</label>
+                <div class="segmented-control" id="w-seg">
+                  <button class="segmented-btn active" data-type="cafeteria">학교 식당</button>
+                  <button class="segmented-btn" data-type="manual">직접 입력</button>
+                </div>
+              </div>
+              <div class="form-group" id="w-loc-select-group">
+                <label>식당 선택</label>
+                <select id="w-loc-select" class="input-field">
+                  <option value="학생식당 (본관)">학생식당 (본관)</option>
+                  <option value="기숙사 식당">기숙사 식당</option>
+                  <option value="중앙도서관 식당">중앙도서관 식당</option>
+                </select>
+              </div>
+              <div class="form-group hidden" id="w-loc-manual-group">
+                <label>상세 장소</label>
+                <input type="text" id="w-loc-manual" class="input-field" placeholder="예) 정문 앞 스타벅스">
+              </div>
+              <div class="form-group">
+                <label>모집 정원</label>
+                <div class="options-grid" id="w-capacity">
+                  <button class="option-btn" data-val="2">2명</button>
+                  <button class="option-btn active" data-val="3">3명</button>
+                  <button class="option-btn" data-val="4">4명</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>성별 제한</label>
+                <div class="options-grid" id="w-gender">
+                  <button class="option-btn active" data-val="무관">성별 무관</button>
+                  <button class="option-btn" data-val="동성만">동성만</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        const now = new Date();
+        now.setMinutes(Math.ceil(now.getMinutes() / 30) * 30);
+        document.getElementById('w-time').value = new Date(now.getTime() - now.getTimezoneOffset()*60000).toISOString().slice(0, 16);
+        
+        let locType = 'cafeteria';
+        const seg = document.getElementById('w-seg');
+        seg.querySelectorAll('.segmented-btn').forEach(b => {
+          b.addEventListener('click', () => {
+            seg.querySelector('.segmented-btn.active').classList.remove('active');
+            b.classList.add('active');
+            locType = b.getAttribute('data-type');
+            document.getElementById('w-loc-select-group').classList.toggle('hidden', locType !== 'cafeteria');
+            document.getElementById('w-loc-manual-group').classList.toggle('hidden', locType === 'cafeteria');
+          });
+        });
+        
+        const bindOpt = (id) => {
+          const parent = document.getElementById(id);
+          parent.querySelectorAll('.option-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              parent.querySelector('.option-btn.active').classList.remove('active');
+              btn.classList.add('active');
+            });
+          });
+        };
+        bindOpt('w-capacity');
+        bindOpt('w-gender');
+        
+        document.getElementById('btn-w-back').addEventListener('click', () => navigate('feed'));
+        document.getElementById('btn-w-submit').addEventListener('click', () => {
+          const title = document.getElementById('w-title').value.trim();
+          const menu = document.getElementById('w-menu').value.trim();
+          const dateTime = document.getElementById('w-time').value;
+          const location = locType === 'cafeteria' ? document.getElementById('w-loc-select').value : document.getElementById('w-loc-manual').value.trim();
+          const capacity = document.getElementById('w-capacity').querySelector('.option-btn.active').getAttribute('data-val');
+          const genderCondition = document.getElementById('w-gender').querySelector('.option-btn.active').getAttribute('data-val');
+          
+          if (!title || !menu || !location) return showToast('필수 항목을 모두 입력해주세요.', 'danger');
+          db.createPost({ title, menu, dateTime, location, capacity, genderCondition });
+          showToast('성공적으로 게시되었습니다!', 'success');
+          navigate('feed');
+        });
+      },
+
+      detail: (container, postId, navigate) => {
+        const post = db.getPost(postId);
+        if (!post) {
+          container.innerHTML = `<div class="auth-screen">글을 찾을 수 없습니다.</div>`;
+          return;
+        }
+        
+        const author = db.getUser(post.authorId);
+        const currentUser = db.getCurrentUser();
+        const participants = post.participantIds.map(x => db.getUser(x));
+        
+        container.innerHTML = `
+          <div class="detail-screen animate-fade-in">
+            <div class="detail-header">
+              <button class="write-back-btn" id="btn-d-back"><i class="fas fa-arrow-left"></i></button>
+              <span class="write-title">밥약 상세 보기</span>
+              <div style="width:20px;"></div>
+            </div>
+            <div class="detail-body">
+              <div class="detail-card">
+                <div class="detail-user-card">
+                  <div class="detail-user-info">
+                    ${getAvatarHtml(author)}
+                    <div class="detail-user-text">
+                      <div class="user-nickname">${author.nickname}</div>
+                      <div class="detail-user-meta">${author.dept} · ${author.grade}</div>
+                    </div>
+                  </div>
+                  <div class="user-manner"><i class="fas fa-fire"></i><span>매너 ${author.mannerScore}℃</span></div>
+                </div>
+                
+                <h2 class="detail-title">${post.title}</h2>
+                <div class="detail-info-grid">
+                  <div class="detail-info-item"><i class="fas fa-utensils"></i><span class="detail-info-label">메뉴</span><span class="detail-info-value">${post.menu}</span></div>
+                  <div class="detail-info-item"><i class="far fa-clock"></i><span class="detail-info-label">시간</span><span class="detail-info-value">${formatDateTime(post.dateTime)}</span></div>
+                  <div class="detail-info-item"><i class="fas fa-map-marker-alt"></i><span class="detail-info-label">장소</span><span class="detail-info-value">${post.location}</span></div>
+                  <div class="detail-info-item"><i class="fas fa-users"></i><span class="detail-info-label">조건</span><span class="detail-info-value">${post.genderCondition} · 모집 정원 ${post.capacity}명</span></div>
+                </div>
+              </div>
+              
+              <div class="detail-participants-section">
+                <div class="section-title">참가 멤버 (${post.joinedCount} / ${post.capacity})</div>
+                <div class="participants-list">
+                  ${participants.map(p => `
+                    <div class="participant-item">
+                      <div class="participant-avatar-info">${getAvatarHtml(p)}<div><div class="user-nickname" style="font-size:13px;">${p.nickname}</div><div style="font-size:10px; color:var(--text-muted);">${p.dept}</div></div></div>
+                      ${p.id === post.authorId ? '<span class="participant-badge">개설자</span>' : ''}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+            
+            <div class="detail-footer-btn-container" id="detail-actions"></div>
+          </div>
+        `;
+        
+        document.getElementById('btn-d-back').addEventListener('click', () => navigate('feed'));
+        
+        const act = document.getElementById('detail-actions');
+        
+        if (post.authorId === currentUser.id) {
+          act.innerHTML = `
+            <div style="display:flex; gap:10px;">
+              <button class="btn btn-outline" id="btn-close-post" style="flex:1;">모집 마감</button>
+              <button class="btn btn-primary" id="btn-chat" style="flex:1.5;"><i class="fas fa-comments"></i> 채팅방 열기</button>
+            </div>
+          `;
+          document.getElementById('btn-close-post').addEventListener('click', () => {
+            post.status = 'closed';
+            db.saveState();
+            showToast('모집을 마감했습니다.', 'warning');
+            navigate('feed');
+          });
+          document.getElementById('btn-chat').addEventListener('click', () => navigate('chat-room', { chatId: post.id }));
+        } else if (post.participantIds.includes(currentUser.id)) {
+          act.innerHTML = `<button class="btn btn-primary" id="btn-chat"><i class="fas fa-comments"></i> 채팅방 이동</button>`;
+          document.getElementById('btn-chat').addEventListener('click', () => navigate('chat-room', { chatId: post.id }));
+        } else {
+          const app = db.getApplications().find(x => x.postId === post.id && x.applicantId === currentUser.id);
+          if (app) {
+            if (app.status === 'pending') {
+              act.innerHTML = `<button class="btn btn-primary" disabled style="background:#9CA3AF; box-shadow:none;">신청 검토 대기 중</button>`;
+            } else if (app.status === 'rejected') {
+              act.innerHTML = `<button class="btn btn-outline" disabled>신청이 반려됨</button>`;
+            }
+          } else if (post.joinedCount >= post.capacity || post.status === 'closed') {
+            act.innerHTML = `<button class="btn btn-primary" disabled style="background:#9CA3AF; box-shadow:none;">모집 마감</button>`;
+          } else {
+            act.innerHTML = `<button class="btn btn-primary" id="btn-apply">밥약 참여 신청하기</button>`;
+            document.getElementById('btn-apply').addEventListener('click', () => {
+              const res = db.applyToPost(post.id);
+              if (res.success) {
+                showToast('참여 신청이 성공적으로 전달되었습니다!', 'success');
+                render.detail(container, postId, navigate);
+              } else {
+                showToast(res.message, 'danger');
+              }
+            });
+          }
+        }
+      },
+
+      notifications: (container, navigate) => {
+        const currentUser = db.getCurrentUser();
+        const myPostIds = db.getPosts().filter(x => x.authorId === currentUser.id).map(x => x.id);
+        const apps = db.getApplications().filter(x => myPostIds.includes(x.postId)).sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        container.innerHTML = `
+          <div class="noti-screen animate-fade-in">
+            <div class="header-bar">
+              <button class="write-back-btn" id="btn-n-back"><i class="fas fa-arrow-left"></i></button>
+              <span class="write-title">받은 참여 신청</span>
+              <div style="width:20px;"></div>
+            </div>
+            <div class="noti-list" id="n-list"></div>
+          </div>
+        `;
+        
+        document.getElementById('btn-n-back').addEventListener('click', () => navigate('feed'));
+        
+        const list = document.getElementById('n-list');
+        if (apps.length === 0) {
+          list.innerHTML = `<div class="empty-state"><i class="far fa-bell-slash"></i><p>받은 신청 내역이 없습니다.</p></div>`;
+          return;
+        }
+        
+        list.innerHTML = apps.map(a => {
+          const applicant = db.getUser(a.applicantId);
+          const post = db.getPost(a.postId);
+          
+          let actions = '';
+          if (a.status === 'pending') {
+            actions = `
+              <div class="noti-actions">
+                <button class="noti-btn noti-btn-reject" data-id="${a.id}" data-action="reject">거절</button>
+                <button class="noti-btn noti-btn-accept" data-id="${a.id}" data-action="accept">수락</button>
+              </div>
+            `;
+          } else {
+            actions = `<div style="font-size:12px; font-weight:700; color:${a.status==='accepted'?'var(--success)':'var(--text-light)'}; margin-left:38px;">신청을 ${a.status==='accepted'?'수락함':'거절함'}</div>`;
+          }
+          
+          return `
+            <div class="noti-card animate-slide-up">
+              <div class="noti-header">
+                ${getAvatarHtml(applicant)}
+                <div class="noti-body">
+                  <div class="noti-text"><strong>${applicant.nickname}</strong>님이 밥약을 신청했습니다.<br><span style="font-size:11px; color:var(--text-muted);">${applicant.dept} · ${applicant.grade} · 매너 ${applicant.mannerScore}℃</span></div>
+                  <div class="noti-target-post">대상글: ${post.title}</div>
+                  <div class="noti-time">${formatDateTime(a.createdAt)}</div>
+                </div>
+              </div>
+              ${actions}
+            </div>
+          `;
+        }).join('');
+        
+        list.querySelectorAll('.noti-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const appId = btn.getAttribute('data-id');
+            const act = btn.getAttribute('data-action');
+            if (act === 'accept') {
+              const res = db.respondToApplication(appId, 'accepted');
+              if (res.success) {
+                showToast('신청을 수락했습니다! 채팅방에 새 멤버가 추가됩니다.', 'success');
+                render.notifications(container, navigate);
+              } else {
+                showToast(res.message, 'danger');
+              }
+            } else {
+              db.respondToApplication(appId, 'rejected');
+              showToast('신청을 거절했습니다.', 'warning');
+              render.notifications(container, navigate);
+            }
+            updateGlobalBadges();
+          });
+        });
+      },
+
+      chats: (container, navigate) => {
+        const rooms = db.getChats();
+        container.innerHTML = `
+          <div class="chat-list-screen animate-fade-in">
+            <div class="header-bar"><span class="header-logo" style="margin-left:4px;"><i class="fas fa-comments"></i> 내 밥약 채팅</span></div>
+            <div class="chat-list" id="c-list"></div>
+          </div>
+        `;
+        
+        const list = document.getElementById('c-list');
+        if (rooms.length === 0) {
+          list.innerHTML = `<div class="empty-state" style="padding-top:120px;"><i class="far fa-comments"></i><p>참여 중인 대화방이 없습니다.</p></div>`;
+          return;
+        }
+        
+        list.innerHTML = rooms.map(r => {
+          const post = db.getPost(r.postId);
+          const lastMsg = r.messages[r.messages.length - 1];
+          return `
+            <div class="chat-list-item" data-id="${r.id}">
+              <div class="chat-item-avatar-group"><i class="fas fa-utensils"></i></div>
+              <div class="chat-item-body">
+                <div class="chat-item-row"><span class="chat-item-name">${post.title}</span><span class="chat-item-time">${lastMsg?formatDateTime(lastMsg.timestamp):''}</span></div>
+                <div class="chat-item-row" style="margin-top:2px;"><span class="chat-item-last">${lastMsg?lastMsg.content:'채팅이 활성화되었습니다.'}</span><span class="chat-item-count">${r.participantIds.length}명</span></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        list.querySelectorAll('.chat-list-item').forEach(item => {
+          item.addEventListener('click', () => navigate('chat-room', { chatId: item.getAttribute('data-id') }));
+        });
+      },
+
+      chatRoom: (container, chatId, navigate) => {
+        const chat = db.getChat(chatId);
+        if (!chat) { container.innerHTML = `<div class="auth-screen">방을 찾을 수 없습니다.</div>`; return; }
+        
+        const currentUser = db.getCurrentUser();
+        const post = db.getPost(chat.postId);
+        
+        container.innerHTML = `
+          <div class="chat-room-screen animate-fade-in">
+            <div class="chat-room-header">
+              <button class="chat-back-btn" id="btn-cr-back"><i class="fas fa-arrow-left"></i></button>
+              <div class="chat-room-title-container"><span class="chat-room-title">${post.menu} 밥약</span><span class="chat-room-member-count">${chat.participantIds.length}명 대화중</span></div>
+              <div style="width:24px;"></div>
+            </div>
+            <div class="chat-room-info-banner">
+              <div class="chat-banner-details"><span><i class="far fa-clock"></i> ${formatDateTime(post.dateTime)}</span><span><i class="fas fa-map-marker-alt"></i> ${post.location}</span></div>
+              ${!chat.ended ? `<button class="chat-end-btn" id="btn-cr-end">식사 완료</button>` : `<span style="font-size:11px;color:var(--text-light);">식사 및 대화 종료됨</span>`}
+            </div>
+            <div class="chat-messages-container" id="cr-msgs"></div>
+            <div class="chat-input-bar">
+              <input type="text" class="chat-input" id="cr-input" placeholder="메시지를 입력하세요..." ${chat.ended?'disabled':''}>
+              <button class="chat-send-btn" id="btn-cr-send" ${chat.ended?'disabled':''}><i class="fas fa-paper-plane"></i></button>
+            </div>
+          </div>
+        `;
+        
+        const box = document.getElementById('cr-msgs');
+        const inp = document.getElementById('cr-input');
+        
+        function scroll() { box.scrollTop = box.scrollHeight; }
+        
+        function drawMsgs() {
+          box.innerHTML = chat.messages.map(m => {
+            if (m.isSystem) return `<div class="chat-sys-msg">${m.content}</div>`;
+            const isMe = m.senderId === currentUser.id;
+            const sender = db.getUser(m.senderId) || { nickname: m.senderName };
+            const time = new Date(m.timestamp).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+            
+            return `
+              <div class="chat-msg-bubble-group ${isMe?'me':'other'}">
+                ${!isMe ? getAvatarHtml(sender) : ''}
+                <div class="chat-bubble-content-wrapper">
+                  ${!isMe ? `<span class="chat-bubble-sender">${sender.nickname}</span>` : ''}
+                  <div class="chat-bubble-row">
+                    <div class="chat-bubble">${m.content}</div>
+                    <span class="chat-bubble-time">${time}</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+          scroll();
+        }
+        
+        function send() {
+          const txt = inp.value.trim();
+          if (!txt) return;
+          const sent = db.sendChatMessage(chat.id, txt);
+          if (sent) {
+            inp.value = '';
+            drawMsgs();
+            
+            if (chat.participantIds.length > 1) {
+              setTimeout(() => {
+                const others = chat.participantIds.filter(x => x !== currentUser.id);
+                const responderId = others[Math.floor(Math.random()*others.length)];
+                const responder = db.getUser(responderId);
+                const answers = ['좋습니다! 시간 맞춰 뵙겠습니다~', '저도 지금 출발해요!', '이따 뵙겠습니다 ㅎㅎ', '맛있겠네요 🤤'];
+                
+                chat.messages.push({
+                  id: 'msg_sim_' + Date.now(), senderId: responder.id, senderName: responder.nickname, content: answers[Math.floor(Math.random()*answers.length)], timestamp: new Date().toISOString(), isSystem: false
+                });
+                db.saveState();
+                
+                const targetBox = document.getElementById('cr-msgs');
+                if (targetBox) drawMsgs();
+                showToast(`${responder.nickname}: ${chat.messages[chat.messages.length-1].content}`, 'success');
+              }, 2500);
+            }
+          }
+        }
+        
+        document.getElementById('btn-cr-back').addEventListener('click', () => navigate('chats'));
+        document.getElementById('btn-cr-send').addEventListener('click', send);
+        inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+        
+        if (!chat.ended) {
+          document.getElementById('btn-cr-end').addEventListener('click', () => {
+            const others = chat.participantIds.filter(x => x !== currentUser.id).map(x => db.getUser(x));
+            if (others.length === 0) {
+              db.endChatRoom(chat.id);
+              showToast('식사가 종료되었습니다.', 'success');
+              navigate('chats');
+              return;
+            }
+            
+            let idx = 0, score = 5;
+            function review() {
+              const u = others[idx];
+              showModal(`
+                <div class="modal-content">
+                  <h3 class="modal-title">매너 평점 남기기</h3>
+                  <p class="modal-desc"><strong>${u.nickname}</strong>님과의 식사 매너는 어땠나요?</p>
+                  <div class="rating-stars">
+                    <button class="star-btn selected" data-val="1"><i class="fas fa-star"></i></button>
+                    <button class="star-btn selected" data-val="2"><i class="fas fa-star"></i></button>
+                    <button class="star-btn selected" data-val="3"><i class="fas fa-star"></i></button>
+                    <button class="star-btn selected" data-val="4"><i class="fas fa-star"></i></button>
+                    <button class="star-btn selected" data-val="5"><i class="fas fa-star"></i></button>
+                  </div>
+                  <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="btn btn-outline" id="btn-m-skip" style="flex:1;">건너뛰기</button>
+                    <button class="btn btn-primary" id="btn-m-ok" style="flex:1.5;">평가 완료</button>
+                  </div>
+                </div>
+              `);
+              
+              const overlay = document.getElementById('modal-container');
+              const stars = overlay.querySelectorAll('.star-btn');
+              stars.forEach(s => {
+                s.addEventListener('click', () => {
+                  const val = parseInt(s.getAttribute('data-val'), 10);
+                  score = val;
+                  stars.forEach(st => {
+                    const stVal = parseInt(st.getAttribute('data-val'), 10);
+                    st.classList.toggle('selected', stVal <= val);
+                  });
+                });
+              });
+              
+              document.getElementById('btn-m-ok').addEventListener('click', () => {
+                db.rateParticipant(post.id, u.id, score);
+                showToast(`${u.nickname}님에게 평점 ${score}점을 보냈습니다.`, 'success');
+                next();
+              });
+              document.getElementById('btn-m-skip').addEventListener('click', next);
+            }
+            
+            function next() {
+              idx++;
+              if (idx < others.length) {
+                score = 5;
+                review();
+              } else {
+                db.endChatRoom(chat.id);
+                hideModal();
+                showToast('평가가 완료되었습니다! 약속이 공식 종료되었습니다.', 'success');
+                navigate('chats');
+              }
+            }
+            review();
+          });
+        }
+        
+        drawMsgs();
+      },
+
+      mypage: (container, navigate, onSwitch) => {
+        const u = db.getCurrentUser();
+        const all = db.getUsers();
+        let tab = 'written';
+        
+        function drawTabList() {
+          const box = document.getElementById('my-posts');
+          if (!box) return;
+          
+          const filtered = db.getPosts().filter(p => {
+            if (tab === 'written') return p.authorId === u.id;
+            return p.participantIds.includes(u.id) && p.authorId !== u.id;
+          });
+          
+          if (filtered.length === 0) {
+            box.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><p>기록이 존재하지 않습니다.</p></div>`;
+            return;
+          }
+          
+          box.innerHTML = filtered.map(p => `
+            <div class="card animate-slide-up" data-id="${p.id}" style="box-shadow:none; border:1.5px solid var(--border-color); margin-bottom:10px;">
+              <div class="card-header"><h3 class="card-title">${p.title}</h3><span class="card-status ${p.status==='closed'?'closed':'recruiting'}">${p.status==='closed'?'종료됨':'모집중'}</span></div>
+              <div class="card-details">
+                <div class="card-detail-item"><i class="fas fa-utensils"></i><span>메뉴: <strong>${p.menu}</strong></span></div>
+                <div class="card-detail-item"><i class="far fa-clock"></i><span>시간: ${formatDateTime(p.dateTime)}</span></div>
+              </div>
+            </div>
+          `).join('');
+          
+          box.querySelectorAll('.card').forEach(c => {
+            c.addEventListener('click', () => navigate('detail', { postId: c.getAttribute('data-id') }));
+          });
+        }
+        
+        container.innerHTML = `
+          <div class="mypage-screen animate-fade-in">
+            <div class="mypage-profile-card">
+              <div class="mypage-avatar">${u.avatar}</div>
+              <h2 class="mypage-nickname">${u.nickname}</h2>
+              <span class="mypage-school-info">${u.dept} · ${u.grade}</span>
+              <div class="manner-section">
+                <div class="manner-label-row"><span class="manner-title"><i class="fas fa-fire"></i> 매너온도</span><span class="manner-score">${u.mannerScore}℃</span></div>
+                <div class="manner-bar-bg"><div class="manner-bar-fill" style="width:${(u.mannerScore/99)*100}%"></div></div>
+              </div>
+            </div>
+            
+            <div class="demo-switch-panel">
+              <div class="demo-title"><i class="fas fa-tools"></i> 테스트용 프로필 전환 대시보드</div>
+              <div class="demo-btn-grid" id="dev-switch-grid">
+                ${all.map(x => `<button class="demo-switch-btn ${x.id===u.id?'active':''}" data-id="${x.id}">${x.nickname} (${x.avatar})</button>`).join('')}
+              </div>
+              <div style="font-size:9.5px; color:var(--text-muted); margin-top:8px; line-height:1.3;">
+                * 사용자를 실시간으로 전환하여 1대 기기에서 매칭 수락 및 거절, 채팅 테스트를 한 번에 검증할 수 있습니다.
+              </div>
+            </div>
+            
+            <div class="tabs-header">
+              <button class="tab-btn active" id="tab-my-w">내가 쓴 글</button>
+              <button class="tab-btn" id="tab-my-j">참여한 글</button>
+            </div>
+            <div id="my-posts" style="padding:16px;"></div>
+          </div>
+        `;
+        
+        document.getElementById('tab-my-w').addEventListener('click', () => {
+          document.getElementById('tab-my-w').classList.add('active');
+          document.getElementById('tab-my-j').classList.remove('active');
+          tab = 'written';
+          drawTabList();
+        });
+        
+        document.getElementById('tab-my-j').addEventListener('click', () => {
+          document.getElementById('tab-my-j').classList.add('active');
+          document.getElementById('tab-my-w').classList.remove('active');
+          tab = 'joined';
+          drawTabList();
+        });
+        
+        container.querySelectorAll('.demo-switch-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const uid = btn.getAttribute('data-id');
+            db.setCurrentUser(uid);
+            showToast(`${db.getUser(uid).nickname} 계정으로 체험 전환되었습니다.`, 'success');
+            onSwitch();
+          });
+        });
+        
+        drawTabList();
+      }
+    };
+
+    // ==========================================================================
+    // 4. Router & Navigation Controller
+    // ==========================================================================
+    let currentView = 'splash';
+    const appContainer = document.getElementById('app');
+    const bottomNav = document.getElementById('bottom-nav');
+
+    function navigate(viewName, params = {}) {
+      currentView = viewName;
+      appContainer.className = 'app-content animate-fade-in';
+      
+      const hideNavViews = ['splash', 'auth', 'create-post', 'detail', 'chat-room'];
+      if (hideNavViews.includes(viewName)) {
+        bottomNav.classList.add('hidden');
+        appContainer.classList.add('no-nav');
+      } else {
+        bottomNav.classList.remove('hidden');
+        appContainer.classList.remove('no-nav');
+        bottomNav.querySelectorAll('.nav-item').forEach(item => {
+          item.classList.toggle('active', item.getAttribute('data-view') === viewName);
+        });
+      }
+      
+      switch (viewName) {
+        case 'splash':
+          render.splash(appContainer, () => {
+            const user = db.getCurrentUser();
+            navigate(user ? 'feed' : 'auth');
+          });
+          break;
+        case 'auth':
+          render.auth(appContainer, () => navigate('feed'));
+          break;
+        case 'feed':
+          render.feed(appContainer, navigate);
+          break;
+        case 'create-post':
+          render.createPost(appContainer, navigate);
+          break;
+        case 'detail':
+          render.detail(appContainer, params.postId, navigate);
+          break;
+        case 'notifications':
+          render.notifications(appContainer, navigate);
+          break;
+        case 'chats':
+          render.chats(appContainer, navigate);
+          break;
+        case 'chat-room':
+          render.chatRoom(appContainer, params.chatId, navigate);
+          break;
+        case 'mypage':
+          render.mypage(appContainer, navigate, () => navigate('mypage'));
+          break;
+      }
+      updateGlobalBadges();
+    }
+
+    function updateGlobalBadges() {
+      const bell = document.getElementById('noti-badge');
+      const chat = document.getElementById('chat-badge');
+      const user = db.getCurrentUser();
+      if (!user) return;
+      
+      const myWrittenIds = db.getPosts().filter(x => x.authorId === user.id).map(x => x.id);
+      const pendingCount = db.getApplications().filter(a => myWrittenIds.includes(a.postId) && a.status === 'pending').length;
+      bell.textContent = pendingCount;
+      bell.classList.toggle('hidden', pendingCount === 0);
+      
+      const activeChats = db.getChats();
+      const unread = activeChats.filter(c => !c.ended).length;
+      chat.textContent = unread;
+      chat.classList.toggle('hidden', unread === 0);
+    }
+
+    bottomNav.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => navigate(item.getAttribute('data-view')));
+    });
+
+    function updateClock() {
+      const timeSpan = document.querySelector('.status-time');
+      if (!timeSpan) return;
+      const now = new Date();
+      timeSpan.textContent = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeState();
+      updateClock();
+      setInterval(updateClock, 1000);
+      navigate('splash');
+    });
+  </script>
+</body>
+</html>
